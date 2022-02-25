@@ -15,8 +15,10 @@ from duckietown_msgs.msg import Twist2DStamped, EpisodeStart
 import cv2
 from dino_segmentation.model import Wrapper
 from cv_bridge import CvBridge
-from integration import get_steer_matrix_left_lane_markings, get_steer_matrix_right_lane_markings, detect_lane_markings, rescale
+from integration import get_steer_matrix_left_lane_markings, get_steer_matrix_right_lane_markings, detect_lane_markings, \
+    rescale
 from integration import vanilla_servoing_mask, obstables_servoing_mask
+
 
 class ObjectDetectionNode(DTROS):
 
@@ -139,27 +141,21 @@ class ObjectDetectionNode(DTROS):
             old_img = image
             image = image[..., ::-1].copy()  # image is bgr, flip it to rgb
 
-        old_img = cv2.resize(old_img, (480, 480))
         img = cv2.resize(image, (480, 480))
         pred_mask, class_names = self.model_wrapper.predict(image)
 
-        # Resize the original image and the predictions to 480 x 480
-        pred_mask = np.kron(pred_mask, np.ones((8, 8))).astype(int)  # Upscale the predictions back to 480x480
-
         # Create binary mask out of segmentation mask
         if self._avoid:
-            self.steer_max = 3000  # Overwrite this one (Simulation)
+            # self.steer_max = 3000  # Overwrite this one (Simulation)
+            self.steer_max = 300
             weighted_mask = obstables_servoing_mask(pred_mask, self.class2int)
         else:
-            self.steer_max = 3000  # Overwrite this one (Simulation)
+            # self.steer_max = 3000  # Overwrite this one (Simulation)
             self.steer_max = 300  # Overwrite this one (real)
             weighted_mask = vanilla_servoing_mask(pred_mask, self.class2int)
 
         # Retrieve masks
-        left_mask, right_mask = detect_lane_markings(weighted_mask)
-        print('\n\n')
-        print(weighted_mask.sum())
-        print('\n\n')
+        left_mask, right_mask = detect_lane_markings(weighted_mask, pred_mask, self.class2int, self._avoid)
 
         # CMD commands computation
         # Load masks
@@ -170,15 +166,15 @@ class ObjectDetectionNode(DTROS):
         steer = float(np.sum(left_mask * steer_matrix_left_lm)) + \
                 float(np.sum(right_mask * steer_matrix_right_lm))
 
-        print('\n\n')
-        print(np.sum(left_mask * steer_matrix_left_lm))
-        print(np.sum(right_mask * steer_matrix_right_lm))
-        print('\n\n')
-
         # now rescale from 0 to 1
         steer_scaled = np.sign(steer) * rescale(min(np.abs(steer), self.steer_max), 0, self.steer_max)
 
-        u = [self.v_0, steer_scaled * self.omega_max]
+        # Hand stop
+        hands_patch = (pred_mask == self.class2int['hand']).sum()
+
+        v = 0 if hands_patch > 10000 else self.v_0
+
+        u = [v, steer_scaled * self.omega_max]
         self.publish_command(u)
 
         # self.logging to screen for debugging purposes
