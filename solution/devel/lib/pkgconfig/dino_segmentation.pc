@@ -1,0 +1,1 @@
+/code/solution/devel/.private/dino_segmentation/lib/pkgconfig/dino_segmentation.pc

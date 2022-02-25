@@ -1,0 +1,8 @@
+prefix=/code/solution/install
+
+Name: dino_segmentation
+Description: Description of dino_segmentation
+Version: 1.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

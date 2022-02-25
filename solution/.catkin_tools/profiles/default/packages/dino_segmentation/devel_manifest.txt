@@ -1,0 +1,6 @@
+dino_segmentation
+/code/solution/devel/.private/dino_segmentation/cmake.lock /code/solution/devel/./cmake.lock
+/code/solution/devel/.private/dino_segmentation/share/dino_segmentation/cmake/dino_segmentationConfig.cmake /code/solution/devel/share/dino_segmentation/cmake/dino_segmentationConfig.cmake
+/code/solution/devel/.private/dino_segmentation/share/dino_segmentation/cmake/dino_segmentationConfig-version.cmake /code/solution/devel/share/dino_segmentation/cmake/dino_segmentationConfig-version.cmake
+/code/solution/devel/.private/dino_segmentation/lib/pkgconfig/dino_segmentation.pc /code/solution/devel/lib/pkgconfig/dino_segmentation.pc
+/code/solution/devel/.private/dino_segmentation/lib/python3/dist-packages/dino_segmentation/__init__.py /code/solution/devel/lib/python3/dist-packages/dino_segmentation/__init__.py

@@ -1,0 +1,4 @@
+Symlinking /code/solution/devel/share/dino_segmentation/cmake/dino_segmentationConfig.cmake
+Symlinking /code/solution/devel/share/dino_segmentation/cmake/dino_segmentationConfig-version.cmake
+Symlinking /code/solution/devel/lib/pkgconfig/dino_segmentation.pc
+Symlinking /code/solution/devel/lib/python3/dist-packages/dino_segmentation/__init__.py

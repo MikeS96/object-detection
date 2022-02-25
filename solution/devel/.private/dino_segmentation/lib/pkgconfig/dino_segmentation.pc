@@ -1,0 +1,8 @@
+prefix=/code/solution/devel/.private/dino_segmentation
+
+Name: dino_segmentation
+Description: Description of dino_segmentation
+Version: 1.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

@@ -1,0 +1,7 @@
+set(dino_segmentation_SETUP_PY_SETUP_MODULE "distutils.core")
+set(dino_segmentation_SETUP_PY_VERSION "1.0.0")
+set(dino_segmentation_SETUP_PY_SCRIPTS "")
+set(dino_segmentation_SETUP_PY_PACKAGES "dino_segmentation")
+set(dino_segmentation_SETUP_PY_PACKAGE_DIRS "include/dino_segmentation")
+set(dino_segmentation_SETUP_PY_MODULES "")
+set(dino_segmentation_SETUP_PY_MODULE_DIRS "")

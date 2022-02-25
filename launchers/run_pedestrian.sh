@@ -18,5 +18,5 @@ source /code/solution/devel/setup.bash --extend
 
 roslaunch --wait agent agent_node.launch &
 roslaunch --wait car_interface all.launch veh:=$VEHICLE_NAME &
-roslaunch --wait object_detection object_detection_node.launch veh:=$VEHICLE_NAME
+roslaunch --wait dino_segmentation dino_segmentation_node.launch veh:=$VEHICLE_NAME
 

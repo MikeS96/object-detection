@@ -1,0 +1,4 @@
+# path to model is by default relative to the package
+model_file: "Hocus pocus you have lost your focus :-)"
+speed: 0.4
+debug: True

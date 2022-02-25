@@ -1,0 +1,1 @@
+/code/solution/devel/.private/dino_segmentation/share/dino_segmentation/cmake/dino_segmentationConfig.cmake

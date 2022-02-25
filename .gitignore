@@ -1,4 +1,4 @@
-__pycache__/
+``__pycache__/
 *.pyc
 catkin_ws/logs/
 catkin_ws/build/
