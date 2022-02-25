@@ -1,6 +1,5 @@
 import ctypes
 import os
-from integration import MODEL_NAME, DT_TOKEN
 
 # DINO imports
 import numpy as np
@@ -16,8 +15,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 class Wrapper():
-    def __init__(self, aido_eval=False):
-        model_name = MODEL_NAME()
+    def __init__(self, model_name):
 
         weight_file_path = f"/code/solution/nn_models/{model_name}"
         self.model = AMD64Model(weight_file_path)

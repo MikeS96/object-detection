@@ -1,4 +1,6 @@
 # path to model is by default relative to the package
 model_file: "Hocus pocus you have lost your focus :-)"
-speed: 0.4
+speed: 0.2
 debug: True
+avoid: False
+model: '1_mlp_frozen_42'

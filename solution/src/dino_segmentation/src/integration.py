@@ -4,6 +4,7 @@
 import cv2
 import numpy as np
 
+
 def get_steer_matrix_left_lane_markings(shape):
     """
         Args:
@@ -16,9 +17,10 @@ def get_steer_matrix_left_lane_markings(shape):
     w_half = w // 2
     steer_matrix_left_lane = np.zeros(shape=shape, dtype="float32")
     # Steer matrix
-    steer_matrix_left_lane[int(h * 5 / 8):, :w_half] = -0.01
+    steer_matrix_left_lane[int(h * 5 / 8):, :w_half] = -0.1
 
     return steer_matrix_left_lane
+
 
 def get_steer_matrix_right_lane_markings(shape):
     """
@@ -32,7 +34,7 @@ def get_steer_matrix_right_lane_markings(shape):
     w_half = w // 2
     steer_matrix_right_lane = np.zeros(shape=shape, dtype="float32")
     # Steer matrix
-    steer_matrix_right_lane[int(h * 5 / 8):, w_half:] = 0.01
+    steer_matrix_right_lane[int(h * 5 / 8):, w_half:] = 0.1
 
     return steer_matrix_right_lane
 
@@ -61,50 +63,21 @@ def detect_lane_markings(mask):
     return mask_left_edge, mask_right_edge
 
 
-def DT_TOKEN():
-    # todo change this to your duckietown token
-    dt_token = "dt1-3nT8KSoxVh4MdLnE1Bq2mTkhRpbR35G8mmbjExKF7zGm6g4-43dzqWFnWd8KBa1yev1g3UKnzVxZkkTbfYtfGWrfSxeihNZvYVNfNmnCBP28LeqDxL"
-    return dt_token
-
-def MODEL_NAME():
-    # todo change this to your model's name that you used to upload it on google colab.
-    # if you didn't change it, it should be "yolov5"
-    return "1_mlp_frozen_42"
-
-# In[2]:
+def rescale(a: float, L: float, U: float):
+    if np.allclose(L, U):
+        return 0.0
+    return (a - L) / (U - L)
 
 
-def NUMBER_FRAMES_SKIPPED():
-    # todo change this number to drop more frames
-    # (must be a positive integer)
-    return 5
-
-# In[3]:
+def vanilla_servoing_mask(mask, class2int):
+    weighted_mask = np.zeros(mask.shape)
+    weighted_mask[:] = (mask == class2int['white-lane']) + (mask == class2int['yellow-lane'])
+    return weighted_mask
 
 
-# `class` is the class of a prediction
-def filter_by_classes(clas):
-    # Right now, this returns True for every object's class
-    # Change this to only return True for duckies!
-    # In other words, returning False means that this prediction is ignored.
-    return True
-
-# In[4]:
-
-
-# `scor` is the confidence score of a prediction
-def filter_by_scores(scor):
-    # Right now, this returns True for every object's confidence
-    # Change this to filter the scores, or not at all
-    # (returning True for all of them might be the right thing to do!)
-    return True
-
-# In[5]:
-
-
-# `bbox` is the bounding box of a prediction, in xyxy format
-# So it is of the shape (leftmost x pixel, topmost y pixel, rightmost x pixel, bottommost y pixel)
-def filter_by_bboxes(bbox):
-    # Like in the other cases, return False if the bbox should not be considered.
-    return True
-
+def obstables_servoing_mask(mask, class2int):
+    # TODO add weights?
+    weighted_mask = np.zeros(mask.shape)
+    weighted_mask[:] = (mask == class2int['white-lane']) + (mask == class2int['duckiebot']) + \
+                       (mask == class2int['duck']) + (mask == class2int['sign'])
+    return weighted_mask
