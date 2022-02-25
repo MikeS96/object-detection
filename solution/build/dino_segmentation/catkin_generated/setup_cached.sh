@@ -9,6 +9,7 @@
 # modified environment variables
 export CMAKE_PREFIX_PATH="/code/solution/devel/.private/dino_segmentation:$CMAKE_PREFIX_PATH"
 export LD_LIBRARY_PATH="/code/solution/devel/.private/dino_segmentation/lib:$LD_LIBRARY_PATH"
+export PKG_CONFIG_PATH="/code/solution/devel/.private/dino_segmentation/lib/pkgconfig:$PKG_CONFIG_PATH"
 export PWD='/code/solution/build/dino_segmentation'
 export PYTHONPATH="/code/solution/devel/.private/dino_segmentation/lib/python3/dist-packages:$PYTHONPATH"
 export ROSLISP_PACKAGE_DIRECTORIES="/code/solution/devel/.private/dino_segmentation/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"

@@ -15,21 +15,6 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
-def run(input, exception_on_failure=False):
-    print(input)
-    try:
-        import subprocess
-        program_output = subprocess.check_output(f"{input}", shell=True, universal_newlines=True,
-                                                 stderr=subprocess.STDOUT)
-    except Exception as e:
-        if exception_on_failure:
-            print(e.output)
-            raise e
-        program_output = e.output
-    print(program_output)
-    return program_output.strip()
-
-
 class Wrapper():
     def __init__(self, aido_eval=False):
         model_name = MODEL_NAME()
@@ -80,22 +65,3 @@ class AMD64Model():
             pred = self.model.predict(x_transformed.unsqueeze(0)).reshape((60, 60))
 
         return pred, class_names
-
-
-class TRTModel(Model):
-    def __init__(self, weight_file_path):
-        super().__init__()
-        ctypes.CDLL(weight_file_path + ".so")
-        from dino_segmentation.tensorrt_model import YoLov5TRT
-        self.model = YoLov5TRT(weight_file_path + ".engine")
-
-    def infer(self, image):
-        # todo ensure this is in boxes, classes, scores format
-        results = self.model.infer_for_robot([image])
-        boxes = results[0][0]
-        confs = results[0][1]
-        classes = results[0][2]
-
-        if classes.shape[0] > 0:
-            return boxes, classes, confs
-        return [], [], []
