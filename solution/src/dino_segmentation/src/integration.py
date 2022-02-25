@@ -17,7 +17,7 @@ def get_steer_matrix_left_lane_markings(shape):
     w_half = w // 2
     steer_matrix_left_lane = np.zeros(shape=shape, dtype="float32")
     # Steer matrix
-    steer_matrix_left_lane[int(h * 5 / 8):, :w_half] = -0.1
+    steer_matrix_left_lane[int(h * 5 / 8):, :w_half] = -0.01
 
     return steer_matrix_left_lane
 
@@ -34,7 +34,7 @@ def get_steer_matrix_right_lane_markings(shape):
     w_half = w // 2
     steer_matrix_right_lane = np.zeros(shape=shape, dtype="float32")
     # Steer matrix
-    steer_matrix_right_lane[int(h * 5 / 8):, w_half:] = 0.1
+    steer_matrix_right_lane[int(h * 5 / 8):, w_half:] = 0.01
 
     return steer_matrix_right_lane
 

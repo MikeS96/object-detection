@@ -152,7 +152,7 @@ class ObjectDetectionNode(DTROS):
             weighted_mask = obstables_servoing_mask(pred_mask, self.class2int)
         else:
             self.steer_max = 3000  # Overwrite this one (Simulation)
-            self.steer_max = 500  # Overwrite this one (real)
+            self.steer_max = 300  # Overwrite this one (real)
             weighted_mask = vanilla_servoing_mask(pred_mask, self.class2int)
 
         # Retrieve masks
@@ -179,7 +179,7 @@ class ObjectDetectionNode(DTROS):
         steer_scaled = np.sign(steer) * rescale(min(np.abs(steer), self.steer_max), 0, self.steer_max)
 
         u = [self.v_0, steer_scaled * self.omega_max]
-        self.publish_command([0,0])
+        self.publish_command(u)
 
         # self.logging to screen for debugging purposes
         self.log("    VISUAL SERVOING    ")
