@@ -1,0 +1,1 @@
+/code/solution/devel/.private/object_detection/lib/pkgconfig/object_detection.pc

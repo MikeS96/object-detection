@@ -1,0 +1,8 @@
+__ignore__
+_background_
+yellow-lane
+white-lane
+duckiebot
+sign
+duck
+hand

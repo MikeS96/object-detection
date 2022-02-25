@@ -1,0 +1,6 @@
+devel_space: /code/solution/devel
+install: false
+install_space: /code/solution/install
+profile: default
+source_space: /code/solution/src
+workspace: /code/solution

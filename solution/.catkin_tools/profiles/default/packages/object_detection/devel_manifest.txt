@@ -1,0 +1,6 @@
+object_detection
+/code/solution/devel/.private/object_detection/cmake.lock /code/solution/devel/./cmake.lock
+/code/solution/devel/.private/object_detection/share/object_detection/cmake/object_detectionConfig-version.cmake /code/solution/devel/share/object_detection/cmake/object_detectionConfig-version.cmake
+/code/solution/devel/.private/object_detection/share/object_detection/cmake/object_detectionConfig.cmake /code/solution/devel/share/object_detection/cmake/object_detectionConfig.cmake
+/code/solution/devel/.private/object_detection/lib/pkgconfig/object_detection.pc /code/solution/devel/lib/pkgconfig/object_detection.pc
+/code/solution/devel/.private/object_detection/lib/python3/dist-packages/object_detection/__init__.py /code/solution/devel/lib/python3/dist-packages/object_detection/__init__.py
