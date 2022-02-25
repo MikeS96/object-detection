@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+
+import yaml
+import os
+
 import numpy as np
 import imgviz
 import rospy
@@ -11,7 +15,7 @@ import cv2
 from dino_segmentation.model import Wrapper
 from cv_bridge import CvBridge
 from integration import NUMBER_FRAMES_SKIPPED, filter_by_classes, filter_by_bboxes, filter_by_scores
-
+from integration import get_steer_matrix_left_lane_markings, get_steer_matrix_right_lane_markings, detect_lane_markings
 
 class ObjectDetectionNode(DTROS):
 
@@ -47,6 +51,15 @@ class ObjectDetectionNode(DTROS):
             "~dino_segmentation_img", Image, queue_size=1, dt_topic_type=TopicType.DEBUG
         )
 
+        # Mask topics
+        self.pub_left_mask = rospy.Publisher(
+            "~lt_mask_seg", Image, queue_size=1, dt_topic_type=TopicType.DEBUG
+        )
+
+        self.pub_right_mask = rospy.Publisher(
+            "~rt_mask_seg", Image, queue_size=1, dt_topic_type=TopicType.DEBUG
+        )
+
         # Construct subscribers
         self.sub_image = rospy.Subscriber(
             f"/{self.veh}/camera_node/image/compressed",
@@ -57,6 +70,10 @@ class ObjectDetectionNode(DTROS):
         )
 
         self.bridge = CvBridge()
+
+        self.class2int = {'_background_': 0, 'yellow-lane': 1,
+                          'white-lane': 2, 'duckiebot': 3,
+                          'sign': 4, 'duck': 5, 'hand': 6}
 
         model_file = rospy.get_param('~model_file', '.')
         self.v = rospy.get_param('~speed', 0.4)
@@ -105,12 +122,20 @@ class ObjectDetectionNode(DTROS):
             image = image[..., ::-1].copy()  # image is bgr, flip it to rgb
 
         old_img = cv2.resize(old_img, (480, 480))
-        image = cv2.resize(image, (480, 480))
+        img = cv2.resize(image, (480, 480))
         pred_mask, class_names = self.model_wrapper.predict(image)
 
         # Resize the original image and the predictions to 480 x 480
-        img = cv2.resize(np.array(image), (480, 480))
         pred_mask = np.kron(pred_mask, np.ones((8, 8))).astype(int)  # Upscale the predictions back to 480x480
+
+        # Create binary mask out of segmentation mask (TODO add weights per category)
+        weighted_mask = np.zeros(pred_mask.shape)
+        weighted_mask[:] = (pred_mask == self.class2int['white-lane']) + (pred_mask == self.class2int['yellow-lane']) + \
+                           (pred_mask == self.class2int['duckiebot']) + (pred_mask == self.class2int['duck']) + \
+                           (pred_mask == self.class2int['sign'])
+
+        # Retrieve masks
+        left_mask, right_mask = detect_lane_markings(weighted_mask)
 
         # detection = self.det2bool(bboxes, classes, scores)
         detection = True
@@ -130,9 +155,24 @@ class ObjectDetectionNode(DTROS):
                 label_names=class_names,
                 loc="rb",
             )
-
-            obj_det_img = self.bridge.cv2_to_imgmsg(viz, encoding="bgr8")
+            # Publish predicted classes
+            obj_det_img = self.bridge.cv2_to_imgmsg(viz, encoding="rgb8")
             self.pub_detections_image.publish(obj_det_img)
+            # Publish left and right masks
+            lt_mask_viz = cv2.addWeighted(cv2.cvtColor(img, cv2.COLOR_RGB2GRAY), 0.2,
+                                          left_mask.astype(np.uint8) * 255, 0.8, 0)
+            rt_mask_viz = cv2.addWeighted(cv2.cvtColor(img, cv2.COLOR_RGB2GRAY), 0.2,
+                                          right_mask.astype(np.uint8) * 255, 0.8, 0)
+            print('\n\n\n')
+            print(np.unique(left_mask.astype(np.uint8)))
+            print(np.unique(right_mask.astype(np.uint8)))
+            print('\n\n\n')
+
+            lt_mask_viz = self.bridge.cv2_to_imgmsg(lt_mask_viz, encoding="mono8")
+            rt_mask_viz = self.bridge.cv2_to_imgmsg(rt_mask_viz, encoding="mono8")
+            # Publish!
+            self.pub_left_mask.publish(lt_mask_viz)
+            self.pub_right_mask.publish(rt_mask_viz)
 
     def det2bool(self, bboxes, classes, scores):
 
@@ -160,6 +200,32 @@ class ObjectDetectionNode(DTROS):
         car_control_msg.omega = 0.0
 
         self.pub_car_cmd.publish(car_control_msg)
+
+    def read_params_from_calibration_file(self, file):
+        """
+        Reads the saved parameters from `/data/config/calibrations/kinematics/DUCKIEBOTNAME.yaml`
+        or uses the default values if the file doesn't exist. Adjusts the ROS parameters for the
+        node with the new values.
+        """
+
+        def readFile(fname):
+            with open(fname, "r") as in_file:
+                try:
+                    return yaml.load(in_file, Loader=yaml.FullLoader)
+                except yaml.YAMLError as exc:
+                    self.logfatal("YAML syntax error. File: %s fname. Exc: %s" % (fname, exc))
+                    return None
+
+        # Check file existence
+        cali_file_folder = os.path.join("/data/config/calibrations", file)
+        fname = os.path.join(cali_file_folder, self.veh + ".yaml")
+        # Use the default values from the config folder if a robot-specific file does not exist.
+        if not os.path.isfile(fname):
+            fname = os.path.join(cali_file_folder, "default.yaml")
+            self.logwarn("Kinematic calibration %s not found! Using default instead." % fname)
+            return readFile(fname)
+        else:
+            return readFile(fname)
 
 
 if __name__ == "__main__":
